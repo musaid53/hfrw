@@ -10,7 +10,7 @@ public class QuotesClient {
     private final WebClient builder;
 
     public QuotesClient(WebClient.Builder builder) {
-        this.builder = builder.baseUrl("http://localhost:8081").build();
+        this.builder = builder.baseUrl("http://localhost:8080").build();
     }
 
 
