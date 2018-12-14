@@ -16,12 +16,12 @@ public class TradingCompanyController {
         this.tradingCompanyClient = tradingCompanyClient;
     }
 
-    @GetMapping(value = "/details", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/details", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Flux<TradingCompany> getAllTradingCompany(){
         return tradingCompanyClient.findAllCompanies();
     }
 
-    @GetMapping(value = "/details/{ticker}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/details/{ticker}", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Mono<TradingCompany> getAllTradingCompany(@PathVariable(value = "ticker") String ticker){
         return tradingCompanyClient.getTradingCompany(ticker);
     }

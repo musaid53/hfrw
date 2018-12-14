@@ -20,8 +20,10 @@ public class TradingCompanyClient {
     }
 
     public Mono<TradingCompany> getTradingCompany(String ticker){
-        return builder.get().uri("/details/{ticker}", ticker).retrieve().bodyToMono(TradingCompany.class)
-                .switchIfEmpty(Mono.error(new RuntimeException("TickerNotFoundException!!!!")));
+        return builder.get().uri("/details/{ticker}", ticker).retrieve()
+                .bodyToMono(TradingCompany.class)
+                .log()
+                .switchIfEmpty(Mono.error(new TickerNotFoundException("Ticker Not Found !!!!")));
     }
 
 }
