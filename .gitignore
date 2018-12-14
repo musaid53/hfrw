@@ -1,6 +1,8 @@
 # Don't track content of these folders
-target/
-.idea/
+/target/
+/.idea/
+/.mvn/
+mvnw
 
 
 # Compiled source #
@@ -11,9 +13,7 @@ target/
 *.exe
 *.o
 *.so
-
-*.so
-
+*.cmd
 # Packages #
 ############
 # it's better to unpack these files and commit the raw source
