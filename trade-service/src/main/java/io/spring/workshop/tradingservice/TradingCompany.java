@@ -6,6 +6,14 @@ public class TradingCompany {
 
     private String ticker;
 
+    public TradingCompany() {
+    }
+
+    public TradingCompany(String description, String ticker) {
+        this.description = description;
+        this.ticker = ticker;
+    }
+
     public String getDescription() {
         return description;
     }

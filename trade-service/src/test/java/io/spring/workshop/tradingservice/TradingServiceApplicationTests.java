@@ -11,6 +11,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -27,7 +28,11 @@ public class TradingServiceApplicationTests {
 	@Autowired
 	private WebTestClient webTestClient;
 	@MockBean
-	private  QuotesClient mockClient;
+	private  QuotesClient quotesClient;
+
+	@MockBean
+	TradingCompanyClient tradingCompanyClient;
+
 	@Test
 	public void contextLoads() {
 		System.out.println("Context loads");
@@ -37,11 +42,10 @@ public class TradingServiceApplicationTests {
 	@Test
 	public void getQuotesFeed(){
 
-		//QuotesClient mockClient = mock(QuotesClient.class);
 
-		//Create 25 quotes
-		when(mockClient.quotesFeed()).thenReturn(getRandomQutesFlux(25));
-		//when(mockClient.getLatestQuote("asdasd")).thenReturn(getMono());
+		//Create 25 random quotes
+		when(quotesClient.quotesFeed()).thenReturn(getRandomQuotesFlux(25));
+		//when(quotesClient.getLatestQuote("asdasd")).thenReturn(getMono());
 
 
 		//----/quotes/feed
@@ -63,7 +67,29 @@ public class TradingServiceApplicationTests {
 				.allSatisfy(quote -> assertThat(quote.getPrice()).isNotNull());
 	}
 
-	private Flux<Quote> getRandomQutesFlux(final int count) {
+	@Test
+	public void getTradingCompanySummary(){
+		String ticker = "demo ticker";
+		when(tradingCompanyClient.getTradingCompany(ticker)).thenReturn(Mono.just(new TradingCompany("Demo Desc", "Demo Ticker")));
+		when(quotesClient.getLatestQuote(ticker)).thenReturn(Mono.just(new Quote(ticker, new Random().nextDouble())));
+
+		TradingCompanySummary summaryMono = webTestClient.get()
+				.uri("/quotes/summary/{ticker}", ticker)
+				.accept(MediaType.APPLICATION_STREAM_JSON)
+				.exchange()
+				.expectStatus().isOk()
+				.expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_STREAM_JSON)
+				.returnResult(TradingCompanySummary.class)
+				.getResponseBody()
+				.log()
+				.blockFirst();
+		assertThat(summaryMono).isNotNull();
+		assertThat(summaryMono.getTradingCompany()).isNotNull();
+		assertThat(summaryMono.getLatestQuote()).isNotNull();
+
+	}
+
+	private Flux<Quote> getRandomQuotesFlux(final int count) {
 
 		List<Quote> quoteList = new ArrayList<>(20);
 		for (int i = 0; i <= count; i++) {
@@ -71,8 +97,16 @@ public class TradingServiceApplicationTests {
 			quoteList.add(quote);
 			System.out.println(quote.toString());
 		}
-		return Flux.fromIterable(quoteList);
+		//return Flux.fromIterable(quoteList);
+		return Flux.fromIterable(quoteList).delayElements(Duration.ofSeconds(1));
 	}
+	private Mono<Quote> getRandomQuoteMono(){
+		return Mono.just(new Quote(RandomString.generate(4), new Random().nextDouble()));
+	}
+
+
+
+
 
 }
 
